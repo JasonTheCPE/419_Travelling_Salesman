@@ -1,8 +1,13 @@
 #ifndef _AIRPORT_BASE_
 #define _AIRPORT_BASE_
 
-typedef struct
- {
+class airport_base
+{
+public:
+    airport_base();
+    airport_base::airport_base(int size)
+    ~airport_base();
+    
     int numAirports;
     std::vector<int> ids;
     std::vector<string> cities;
@@ -10,6 +15,8 @@ typedef struct
     std::vector<string> alias;
     std::vector<double> lats;
     std::vector<double> longs;
- } airport_base;
+
+    double get_distance(int a_Id, int b_Id);
+};
 
 #endif
