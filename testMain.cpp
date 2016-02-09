@@ -25,5 +25,18 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 
 int main(void) {
     printf("Answer: 3996.484. \nResult: %lf\n", get_distance(33.9425, 20.8987, 118.4081, 156.4305));
+    
+    const char* target = "../airports.dat";
+   airport_base:airport_base ab;
+   ParseAirports(target, &ab);
+
+   for(int i = 0; i < ab.numAirports; i++) {
+      cout << "id: " << ab.ids[i] << endl;
+      cout << "city: " << ab.cities[i] << endl;
+      cout << "alias: " << ab.alias[i] << endl;
+      cout << "lat: " << ab.lats[i] << endl;
+      cout << "lon: " << ab.longs[i] << endl << endl;
+   }
+   return 0;
     return 0;
 }
