@@ -8,9 +8,9 @@ class airport_base
 {
 public:
     airport_base();
-    airport_base::airport_base(int size);
-    ~airport_base();
-
+    airport_base(int size);
+    //~airport_base();
+    
     int numAirports;
     std::vector<int> ids;        //Ex: 5768
     std::vector<std::string> cities;  //Ex: San Luis Obispo
