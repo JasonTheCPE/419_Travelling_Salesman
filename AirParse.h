@@ -15,9 +15,8 @@
 #define ALIAS_INDEX 4
 #define LAT_INDEX 6
 #define LON_INDEX 7
-#define LAST_INDEX 8
 
-int ParseAirports(std::string filename, airport_base::airport_base *ab);
+int ParseAirports(const char* filename, airport_base::airport_base *ab);
 //int ParseRoutes(std::string filename, route_table *rt);
 
 #endif
