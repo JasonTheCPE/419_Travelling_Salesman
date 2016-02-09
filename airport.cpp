@@ -1,6 +1,6 @@
 #include <stdio.h>      /* printf */
 #include <math.h>       /* sin */
-#include <airport.h>
+#include "airport.h"
 
 #define PI 3.14159265
 #define deg2rad(a) (a * 3.14159265/180.0)
@@ -15,7 +15,7 @@ airport_base::airport_base(int size) {
     numAirports = size;
     ids.resize(size);
     cities.resize(size);
-    names.resize(size);
+    //names.resize(size);
     alias.resize(size);
     lats.resize(size);
     longs.resize(size);

@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <math.h>       /* sin */
+#include "airport.h"
+#include "AirParse.h"
 
 #define Deg2Rad(a) (a * 3.14159265/180.0)
+
+using namespace std;
 
 double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) {
     double R = 6367.4447;    // radius of the earth according to wolfram alpha and Siri (who used wolfram)
