@@ -2,7 +2,22 @@
 #ifndef _AIRPARSE_
 #define _AIRPARSE_
 
-void ParseAirports(string filename, airport_base *ab)
-void ParseRoutes(string filename, route_table *rt);
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include "airport.h"
+
+#define ID_INDEX 0
+#define CITYNAME_INDEX 2
+#define ALIAS_INDEX 4
+#define LAT_INDEX 6
+#define LON_INDEX 7
+#define LAST_INDEX 8
+
+int ParseAirports(std::string filename, airport_base::airport_base *ab);
+//int ParseRoutes(std::string filename, route_table *rt);
 
 #endif
