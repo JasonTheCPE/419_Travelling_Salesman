@@ -1,7 +1,12 @@
 #ifndef _ROUTE_BASE_
 #define _ROUTE_BASE_
 
-typedef struct
+#include <vector>
+#include <string>
+
+using namespace std;
+
+typedef struct route_base
  {
     int numRoutes;
     std::vector<int> sourceID;

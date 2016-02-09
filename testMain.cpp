@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>       /* sin */
 #include "airport.h"
+#include "route.h"
 #include "AirParse.h"
 
 #define Deg2Rad(a) (a * 3.14159265/180.0)
@@ -28,12 +29,16 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 }
 
 int main(void) {
-    printf("Answer: 3996.484. \nResult: %lf\n", get_distance(33.9425, 20.8987, 118.4081, 156.4305));
+   printf("Answer: 3996.484. \nResult: %lf\n", get_distance(33.9425, 20.8987, 118.4081, 156.4305));
     
-    const char* target = "../airports.dat";
+   const char* target = "../airports.dat";
    airport_base:airport_base ab;
-   ParseAirports(target, &ab);
+   route_base:route_base rt;
 
+   const char* target2 = "../routes.dat";
+   ParseAirports(target, &ab);
+   ParseRoutes(target2, &rt);
+/*
    for(int i = 0; i < ab.numAirports; i++) {
       cout << "id: " << ab.ids[i] << endl;
       cout << "city: " << ab.cities[i] << endl;
@@ -41,6 +46,13 @@ int main(void) {
       cout << "lat: " << ab.lats[i] << endl;
       cout << "lon: " << ab.longs[i] << endl << endl;
    }
+
+   for(int i = 0; i < rt.numRoutes; i++) {
+      cout << "sourceid: " << rt.sourceID[i] << endl;
+      cout << "destid: " << rt.destID[i] << endl;
+      cout << "sourcealias: " << rt.sourceAlias[i] << endl;
+      cout << "destalias: " << rt.destAlias[i] << endl << endl;
+   }
+*/
    return 0;
-    return 0;
 }
