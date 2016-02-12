@@ -32,12 +32,13 @@ int main(void) {
    printf("Answer: 3996.484. \nResult: %lf\n", get_distance(33.9425, 20.8987, 118.4081, 156.4305));
     
    const char* target = "../airports.dat";
+   const char* target2 = "../routes.dat";
    airport_base:airport_base ab;
    route_base:route_base rt;
 
-   const char* target2 = "../routes.dat";
-   ParseAirports(target, &ab);
    ParseRoutes(target2, &rt);
+   ParseAirports(target, &ab, &rt);
+
 /*
    for(int i = 0; i < ab.numAirports; i++) {
       cout << "id: " << ab.ids[i] << endl;

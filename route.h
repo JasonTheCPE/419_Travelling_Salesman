@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -14,6 +15,8 @@ typedef struct route_base
 
     std::vector<string> sourceAlias;
     std::vector<string> destAlias;
+
+    std::map<int, int> idToIndexMap;
 
  } route_base;
 

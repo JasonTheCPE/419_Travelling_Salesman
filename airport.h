@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "route.h"
 
 class airport_base
 {
@@ -18,6 +19,8 @@ public:
     std::vector<std::string> alias;   //Ex: SBP
     std::vector<double> lats;    //Ex: 35.2368
     std::vector<double> longs;   //Ex: -120.624
+
+    std::vector<route_base*> outFlight;
 
     double get_distance(int a_Id, int b_Id);
 };

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void ParseAirports(const char* filename, airport_base *ab) {
+void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
    ifstream inFile(filename);
    stringstream ss, conv;
    string line;
@@ -43,7 +43,12 @@ void ParseAirports(const char* filename, airport_base *ab) {
                   conv.str("");
                   conv << line.substr(prev, pos - prev);
                   conv >> tempInt;
-                  ab->ids.push_back(tempInt);
+                  if(rt->idToIndexMap.find(tempInt) == rt->idToIndexMap.end()) {
+                     // Airport has no routes from in the route table, skip rest of line
+                     prev = line.length();
+                  } else {
+                     ab->ids.push_back(tempInt);
+                  }
                   break;
                case CITYNAME_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
@@ -112,6 +117,7 @@ void ParseRoutes(const char* filename, route_base::route_base *rt) {
             switch(index) {
                case SOURCEALIAS_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
+                  rt->idToIndexMap.insert(make_pair<int, int>(rt->sourceID, rt->sourceAlias.size()));
                   rt->sourceAlias.push_back(line.substr(prev, pos - prev));
                   break;
                case SOURCEID_INDEX:
