@@ -46,6 +46,10 @@ void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
                   if(rt->idToIndexMap.find(tempInt) == rt->idToIndexMap.end()) {
                      // Airport has no routes from in the route table, skip rest of line
                      prev = line.length();
+                     // Set the value to be the index in the airport_base list
+                     // that you can find this at
+                     rt->idToIndexMap[tempInt] = index;
+                     ++numAirports;
                   } else {
                      ab->ids.push_back(tempInt);
                   }
@@ -81,7 +85,6 @@ void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
          }
          prev = pos + 1;
       }
-      ++numAirports;
    }
    
    ab->numAirports = numAirports;
@@ -117,7 +120,6 @@ void ParseRoutes(const char* filename, route_base::route_base *rt) {
             switch(index) {
                case SOURCEALIAS_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
-                  rt->idToIndexMap.insert(make_pair<int, int>(rt->sourceID, rt->sourceAlias.size()));
                   rt->sourceAlias.push_back(line.substr(prev, pos - prev));
                   break;
                case SOURCEID_INDEX:
@@ -126,6 +128,8 @@ void ParseRoutes(const char* filename, route_base::route_base *rt) {
                   conv.str("");
                   conv << line.substr(prev, pos - prev);
                   conv >> tempInt;
+                  // Init a pkey/value pair to be set properly later
+                  rt->idToIndexMap[tempInt] =  0;
                   rt->sourceID.push_back(tempInt);
                   break;
                case DESTALIAS_INDEX:

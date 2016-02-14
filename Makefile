@@ -28,4 +28,4 @@ testparse: $(OBJ) testMain.cpp
 	
 
 clean:
-	rm -f *.o partsp testparse result.csv *.optrpt
+	rm -f *.o partsp testparse result.csv *.optrpt *~
