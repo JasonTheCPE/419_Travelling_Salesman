@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <math.h>       /* sin */
-#include "airport.h"
-#include "route.h"
+#include "airprt.h"
 #include "AirParse.h"
 
 #define Deg2Rad(a) (a * 3.14159265/180.0)
@@ -29,15 +28,15 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 }
 
 int main(void) {
-   printf("Answer: 3996.484. \nResult: %lf\n", get_distance(33.9425, 20.8987, 118.4081, 156.4305));
+   printf("Answer: 3996.484 \nResult: %lf\n", get_distance(33.9425, 20.8987, 118.4081, 156.4305));
     
-   const char* target = "../airports.dat";
-   const char* target2 = "../routes.dat";
-   airport_base:airport_base ab;
-   route_base:route_base rt;
+   const char* airFile = "../airports.dat";
+   const char* rtFile = "../routes.dat";
+   map<int,airport> airports;
+   map<string,city> cities;
 
-   ParseRoutes(target2, &rt);
-   ParseAirports(target, &ab, &rt);
+
+   GetAllInfo(rtFile, airFile, &cities, &airports);
 
 /*
    for(int i = 0; i < ab.numAirports; i++) {

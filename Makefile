@@ -7,9 +7,9 @@ CC= icpc
 CFLAGS= -O3 -g #-debug inline-debug-info -openmp -xHost
 LIBS=
 SRCFILES= AirParse.cpp airport.cpp route.cpp main.cpp
-PARSETESTSRCFILES= AirParse.cpp airport.cpp
+PARSETESTSRCFILES= AirParse.cpp
 INCLUDES=
-OBJ= AirParse.o airport.o
+OBJ= AirParse.o
 
 ifdef REPORT
 CFLAGS+=-qopt-report=5

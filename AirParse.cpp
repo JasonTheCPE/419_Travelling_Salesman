@@ -2,28 +2,53 @@
 #include <iostream>
 #include <string>
 #include "AirParse.h"
+#include "airprt.h"
 
 using namespace std;
 
-void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
-   ifstream inFile(filename);
+/*
+ * Fills out the maps for airports and cities.
+ */
+void GetAllInfo(const char* routeFilename, const char* airportsFilename,
+                std::map<std::string, city> *cities,
+                std::map<int, airport> *airports) {
+
+   GetRouteInfo(routeFilename, airports);
+   GetCityAirportsInfo(airportsFilename, cities, airports);
+}
+
+/*
+ * Takes a the name of a file containing airport information and an empty map
+ * with city name keys and city struct values as well as another populated map
+ * with airport ID keys and airprt struct values. Then populates both maps by
+ * reading the file filling in the information for:
+ *
+ * In the cities map...
+ * vector<int> airportIDs
+ *
+ * In the airports map...
+ * double lat
+ * double lon
+ */
+void GetCityAirportsInfo(const char* airportsFilename,
+                         std::map<std::string, city> *cities,
+                         std::map<int, airport> *airports) {
+
+   ifstream inFile(airportsFilename);
    stringstream ss, conv;
    string line;
    string delimiters = ",\"";
    int numAirports = 0;
+   int numCities = 0;
+   bool skip;
    int index;
    size_t prev, pos;
 
    int tempInt;
    double tempDbl;
 
-/*
- //I wish we could use thee regular expression, sadly tis not to be *sadness*
-   regex regEx("^(\\d{1,}),\"([a-zA-Z ]{1,})\".*?\"([a-zA-Z]{3})\",.*?,([0-9\\-\\.]{3,}),([0-9\\-\\.]{3,}),");
-*/
-
    if(!inFile) {
-      cerr << "Problem reading from " << filename << endl;
+      cerr << "Problem reading from " << airportsFilename << endl;
    }
       
    while(getline(inFile, line)) 
@@ -32,9 +57,11 @@ void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
       ss.str("");
       ss.str(line);
       prev = index = 0;
+      skip = false;
 
-      while ((pos = line.find_first_of(delimiters, prev)) != string::npos)
+      while ((pos = line.find_first_of(delimiters, prev)) != string::npos && !skip)
       {
+
          if (pos > prev) {
             switch(index) {
                case ID_INDEX:
@@ -43,24 +70,17 @@ void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
                   conv.str("");
                   conv << line.substr(prev, pos - prev);
                   conv >> tempInt;
-                  if(rt->idToIndexMap.find(tempInt) == rt->idToIndexMap.end()) {
+                  if((*airports).find(tempInt) == (*airports).end()) {
                      // Airport has no routes from in the route table, skip rest of line
-                     prev = line.length();
-                     // Set the value to be the index in the airport_base list
-                     // that you can find this at
-                     rt->idToIndexMap[tempInt] = index;
-                     ++numAirports;
+                     skip = true;
                   } else {
-                     ab->ids.push_back(tempInt);
+                     // Airport has routes from, continue gathering info
+                     ++numAirports;
                   }
                   break;
                case CITYNAME_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
-                  ab->cities.push_back(line.substr(prev, pos - prev));
-                  break;
-               case ALIAS_INDEX:
-                  //cout << "ALIAS: " << line.substr(prev, pos - prev) << endl;
-                  ab->alias.push_back(line.substr(prev, pos - prev));
+                  (*cities)[line.substr(prev, pos - prev)].containedAirportIDs.push_back(tempInt);
                   break;
                case LAT_INDEX:
                   //cout << "LAT: " << line.substr(prev, pos - prev) << endl;
@@ -68,7 +88,7 @@ void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
                   conv.str("");
                   conv.str(line.substr(prev, pos - prev));
                   conv >> tempDbl;
-                  ab->lats.push_back(tempDbl);
+                  (*airports)[tempInt].lat = tempDbl;
                   break;
                case LON_INDEX:
                   //cout << "LON: " << line.substr(prev, pos - prev) << endl;
@@ -76,7 +96,7 @@ void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
                   conv.str("");
                   conv.str(line.substr(prev, pos - prev));
                   conv >> tempDbl;
-                  ab->longs.push_back(tempDbl);
+                  (*airports)[tempInt].lon = tempDbl;
                   break;
                default:
                   break;
@@ -87,13 +107,22 @@ void ParseAirports(const char* filename, airport_base *ab, route_base *rt) {
       }
    }
    
-   ab->numAirports = numAirports;
+   cout << "Cities: " << (*cities).size() << endl;
    cout << "Airports: " << numAirports << endl;
 }
 
+/*
+ * Takes a the name of a file containing routes and an empty map with airport
+ * ID keys and airprt struct values. Then populates the map by reading the
+ * file filling in the information for:
+ *
+ * vector<int> outgoingDests
+ * string alias
+ */
+void GetRouteInfo(const char* routeFilename,
+                  std::map<int, airport> *airports) {
 
-void ParseRoutes(const char* filename, route_base::route_base *rt) {
-   ifstream inFile(filename);
+   ifstream inFile(routeFilename);
    stringstream ss, conv;
    string line;
    string delimiters = ",";
@@ -101,10 +130,11 @@ void ParseRoutes(const char* filename, route_base::route_base *rt) {
    int index;
    size_t prev, pos;
 
-   int tempInt;
+   int sourceID, destID;
+   string tempStr;
 
    if(!inFile) {
-      cerr << "Problem reading from " << filename << endl;
+      cerr << "Problem reading from " << routeFilename<< endl;
    }
       
    while(getline(inFile, line)) 
@@ -120,29 +150,25 @@ void ParseRoutes(const char* filename, route_base::route_base *rt) {
             switch(index) {
                case SOURCEALIAS_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
-                  rt->sourceAlias.push_back(line.substr(prev, pos - prev));
+                  // Grab the alias for assignment in the later steps
+                  tempStr = line.substr(prev, pos - prev);
                   break;
                case SOURCEID_INDEX:
                   //cout << "ID: " << line.substr(prev, pos - prev) << endl;
                   conv.clear();
                   conv.str("");
                   conv << line.substr(prev, pos - prev);
-                  conv >> tempInt;
-                  // Init a pkey/value pair to be set properly later
-                  rt->idToIndexMap[tempInt] =  0;
-                  rt->sourceID.push_back(tempInt);
-                  break;
-               case DESTALIAS_INDEX:
-                  //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
-                  rt->destAlias.push_back(line.substr(prev, pos - prev));
+                  conv >> sourceID;
+                  (*airports)[sourceID].alias = tempStr;
                   break;
                case DESTID_INDEX:
                   //cout << "ID: " << line.substr(prev, pos - prev) << endl;
                   conv.clear();
                   conv.str("");
                   conv << line.substr(prev, pos - prev);
-                  conv >> tempInt;
-                  rt->destID.push_back(tempInt);
+                  conv >> destID;
+                  // Add outgoing route information to each airport
+                  (*airports)[sourceID].outgoingIDs.push_back(destID);
                   break;
                default:
                   break;
@@ -154,7 +180,7 @@ void ParseRoutes(const char* filename, route_base::route_base *rt) {
       ++numRoutes;
    }
    
-   rt->numRoutes = numRoutes;
+   cout << "Airports: " << (*airports).size() << endl;
    cout << "Routes: " << numRoutes << endl;
 }
 

@@ -1,18 +1,23 @@
-#ifndef _AIRPORT_BASE_
-#define _AIRPORT_BASE_
+#ifndef _AIRPORT_INFO_
+#define _AIRPORT_INFO_
 
 #include <vector>
 #include <string>
 
-using namespace std;
-
-typedef struct airprt
+typedef struct airport
 {
-   string city;
-   string alias;
+   std::string alias;
    double lat;
    double lon;
-   vector<int> outgoingIDs;
-} airprt;
+   std::vector<int> outgoingIDs;
+}airport;
+
+typedef struct city
+{
+   std::vector<int> containedAirportIDs;
+   std::vector<int> nextVisitedAirportID;
+   std::vector<std::string> nextVisitedCity;
+   int visitedCount;
+}city;
 
 #endif
