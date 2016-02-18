@@ -3,6 +3,8 @@
 #include <fstream>
 #include <stdlib.h>
 #include <map>
+#include <stdio.h>
+#include <iostream>
 
 #include "tsp.h"
 
@@ -33,6 +35,15 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 
 //floyd algorithm, get any two points's minimum distance
 void createFloydTable(int numCities, double**cityMap, std::vector< std::vector< std::vector<int> > > &routeMap) {
+    for (int i = 0; i < numCities; ++i)
+    {
+        for (int j = 0; j < numCities; ++j)
+        {
+            routeMap[i][j].push_back(j);
+        }
+    }
+
+
     for (int k = 0; k < numCities; k++) {
         for (int i = 0; i < numCities; i++) {
             for (int j = 0; j < numCities; j++) {
@@ -59,33 +70,32 @@ std::vector<int> createRoute(int numCities, int startIdx, double**cityMap,
                             std::vector< std::vector< std::vector<int> > > &routeMap) {
     std::vector<int> path;
     path.reserve(numCities*2);
-    path.push_back(startIdx);
 
     bool *visitedTable = (bool *)calloc(numCities, sizeof(bool));
-    int start;
+    int lastCity = startIdx;
 
     for (int i = 0; i < numCities; ++i)
     {
         if (!visitedTable[i])
         {
-            start = path.back();
-            for (int j = 0; j < routeMap[start][i].size(); ++j)
+            for (int j = 0; j < routeMap[lastCity][i].size(); j += 2)
             {
-                int toAdd = routeMap[start][i][j];
+                int toAdd = routeMap[lastCity][i][j];
                 path.push_back(toAdd);
-                visitedTable[toAdd] = true;
+                visitedTable[routeMap[lastCity][i][j + 1]] = true;
             }
+            lastCity = i;
         }
     }
 
-    start = path.back();
-    if (start != 0) {
-        for (int j = 0; j < routeMap[start][0].size(); ++j)
+    if (lastCity != startIdx) {
+        for (int j = 0; j < routeMap[lastCity][startIdx].size(); j += 2)
         {
-            int toAdd = routeMap[start][0][j];
+            int toAdd = routeMap[lastCity][startIdx][j];
             path.push_back(toAdd);
-            visitedTable[toAdd] = true;
+            visitedTable[routeMap[lastCity][startIdx][j + 1]] = true;
         }
+        lastCity = startIdx;
     }
 
     free(visitedTable);
