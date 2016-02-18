@@ -1,6 +1,10 @@
 #include <math.h>       /* sin */
 #include <vector>
 #include <fstream>
+#include <stdlib.h>
+#include <map>
+
+#include "tsp.h"
 
 #define PI 3.14159265
 #define Deg2Rad(a) (a * 3.14159265/180.0)
@@ -57,7 +61,7 @@ std::vector<int> createRoute(int numCities, int startIdx, double**cityMap,
     path.reserve(numCities*2);
     path.push_back(startIdx);
 
-    bool *visitedTable = calloc(numCities, sizeof(bool));
+    bool *visitedTable = (bool *)calloc(numCities, sizeof(bool));
     int start;
 
     for (int i = 0; i < numCities; ++i)
@@ -91,22 +95,23 @@ std::vector<int> createRoute(int numCities, int startIdx, double**cityMap,
 
 void printToCSV(const char* filename, std::vector<int> &path, 
                 std::vector<route> &routeList, std::map<int, airport> airports) {
-    ofstream Out_File(fileName);
+    ofstream Out_File(filename);
 
     // headings for file
     Out_File << "City;Airport Code;Trip Distance (km);Total Distance (km)" << endl;
 
     // do initial location
     route curRoute = routeList[0];
-    airport curAirport = airport[curRoute.from];
+    airport curAirport = airports[curRoute.from];
     Out_File << curAirport.cityName << ";" 
              << curAirport.alias << ";" 
              << 0 << ";" << 0 << endl;
 
     // fill table
-    for (int i = 0, double pathCost = 0; i < path.size(); ++i) {
+    double pathCost = 0;
+    for (int i = 0; i < path.size(); ++i) {
         curRoute = routeList[i];
-        curAirport = airport[curRoute.to];
+        curAirport = airports[curRoute.to];
 
         // get the current total cost after flight
         pathCost += curRoute.distance;
