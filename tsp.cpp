@@ -1,6 +1,7 @@
 #include <math.h>       /* sin */
 #include <vector>
 
+#define PI 3.14159265
 #define Deg2Rad(a) (a * 3.14159265/180.0)
 
 using namespace std;
@@ -27,7 +28,7 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 
 //floyd algorithm, get any two points's minimum distance
 void createFloydTable(int numCities, double**cityMap, 
-                        std::vector< std::vector< std::vector<int> > > airMap) {
+                        std::vector< std::vector< std::vector<int> > > routeMap) {
     for (int k = 0; k < numCities; k++) {
         for (int i = 0; i < numCities; i++) {
             for (int j = 0; j < numCities; j++) {
@@ -38,10 +39,10 @@ void createFloydTable(int numCities, double**cityMap,
                         cityMap[i][j] = newLength;
 
                         // create the new vector
-                        airMap[i][j].clear();
-                        airMap[i][j].reserve( airMap[i][k].size() + airMap[k][j].size() ); // preallocate memory
-                        airMap[i][j].insert( airMap[i][j].end(), airMap[i][k].begin(), airMap[i][k].end() );
-                        airMap[i][j].insert( airMap[i][j].end(), airMap[k][j].begin(), airMap[k][j].end() );
+                        routeMap[i][j].clear();
+                        routeMap[i][j].reserve( routeMap[i][k].size() + routeMap[k][j].size() ); // preallocate memory
+                        routeMap[i][j].insert( routeMap[i][j].end(), routeMap[i][k].begin(), routeMap[i][k].end() );
+                        routeMap[i][j].insert( routeMap[i][j].end(), routeMap[k][j].begin(), routeMap[k][j].end() );
                     }
                 }
             }
@@ -51,10 +52,15 @@ void createFloydTable(int numCities, double**cityMap,
 
 // very naive TSP
 std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable, 
-                            double**cityMap, std::vector< std::vector< std::vector<int> > > airMap) {
+                            double**cityMap, std::vector< std::vector< std::vector<int> > > routeMap) {
     std::vector<int> path;
-    path.reserve(numCities);
+    path.reserve(numCities*2);
     path.push_back(0);
+
+    std::vector<double> costs;
+    costs.reserve(numCities*2);
+    costs.push_back(0);
+
     double pathCost = 0;
     int start = 0;
 
@@ -65,9 +71,9 @@ std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable,
             start = path.back();
             pathCost += cityMap[start][i];
 
-            for (int j = 1; j < airMap[start][i].size(); ++j)
+            for (int j = 0; j < routeMap[start][i].size(); ++j)
             {
-                int toAdd = airMap[start][i][j];
+                int toAdd = routeMap[start][i][j];
                 path.push_back(toAdd);
                 visitedTable[toAdd] = true;
             }
@@ -78,13 +84,33 @@ std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable,
     if (start != 0) {
         pathCost += cityMap[start][0];
 
-        for (int j = 1; j < airMap[start][0].size(); ++j)
+        for (int j = 1; j < routeMap[start][0].size(); ++j)
         {
-            int toAdd = airMap[start][0][j];
+            int toAdd = routeMap[start][0][j];
             path.push_back(toAdd);
             visitedTable[toAdd] = true;
         }
     }
 
     return path;
+}
+
+double get_distance(int a_Id, int b_Id) {
+    double R = 6367.4447;    // radius of the earth according to wolfram alpha and Siri (who used wolfram)
+    double lat1 = deg2rad(lats[a_Id]);
+    double lat2 = deg2rad(lats[b_Id]);
+    double lon1 = deg2rad(longs[a_Id]);
+    double lon2 = deg2rad(longs[b_Id]);
+
+    double dlon = lon2 - lon1;
+    double dlat = lat2 - lat1;
+
+    double u = sin(dlat/2);
+    double v = sin(dlon/2);
+
+    double a = u*u + cos(lat1) * cos(lat2) * v*v;
+    double c = 2.0 * atan2(sqrt(a), sqrt(1-a)) ;
+    double d = R * c;
+
+    return d;
 }
