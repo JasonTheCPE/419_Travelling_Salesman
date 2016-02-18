@@ -26,6 +26,7 @@
 
 void GetAllInfo(const char* routeFilename, const char* airportsFilename,
                 std::map<std::string, city> *cities,
+                std::vector<std::string> *cityNames,
                 std::map<int, airport> *airports, int *routeNum);
 
 void GetRouteInfo(const char* routeFilename,
@@ -33,10 +34,12 @@ void GetRouteInfo(const char* routeFilename,
 
 void GetCityAirportsInfo(const char* airportsFilename,
                          std::map<std::string, city> *cities,
+                         std::vector<std::string> *cityNames,
                          std::map<int, airport> *airports);
 
 void FillRouteVector(std::vector<route> &routes,
                 std::vector<std::vector<std::vector<int> > > &airMap,
                 std::map<std::string, city> &cities,
+                std::vector<std::string> &cityNames,
                 std::map<int, airport> &airports);
 #endif
