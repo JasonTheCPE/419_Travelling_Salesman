@@ -28,7 +28,7 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 
 //floyd algorithm, get any two points's minimum distance
 void createFloydTable(int numCities, double**cityMap, 
-                        std::vector< std::vector< std::vector<int> > > routeMap) {
+                        std::vector< std::vector< std::vector<int> > > &routeMap) {
     for (int k = 0; k < numCities; k++) {
         for (int i = 0; i < numCities; i++) {
             for (int j = 0; j < numCities; j++) {
@@ -52,7 +52,7 @@ void createFloydTable(int numCities, double**cityMap,
 
 // very naive TSP
 std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable, 
-                            double**cityMap, std::vector< std::vector< std::vector<int> > > routeMap) {
+                            double**cityMap, std::vector< std::vector< std::vector<int> > > &routeMap) {
     std::vector<int> path;
     path.reserve(numCities*2);
     path.push_back(0);
