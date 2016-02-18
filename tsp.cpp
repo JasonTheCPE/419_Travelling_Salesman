@@ -1,5 +1,6 @@
 #include <math.h>       /* sin */
 #include <vector>
+#include <fstream>
 
 #define PI 3.14159265
 #define Deg2Rad(a) (a * 3.14159265/180.0)
@@ -27,8 +28,7 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 }
 
 //floyd algorithm, get any two points's minimum distance
-void createFloydTable(int numCities, double**cityMap, 
-                        std::vector< std::vector< std::vector<int> > > &routeMap) {
+void createFloydTable(int numCities, double**cityMap, std::vector< std::vector< std::vector<int> > > &routeMap) {
     for (int k = 0; k < numCities; k++) {
         for (int i = 0; i < numCities; i++) {
             for (int j = 0; j < numCities; j++) {
@@ -51,26 +51,20 @@ void createFloydTable(int numCities, double**cityMap,
 }
 
 // very naive TSP
-std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable, 
-                            double**cityMap, std::vector< std::vector< std::vector<int> > > &routeMap) {
+std::vector<int> createRoute(int numCities, int startIdx, double**cityMap, 
+                            std::vector< std::vector< std::vector<int> > > &routeMap) {
     std::vector<int> path;
     path.reserve(numCities*2);
-    path.push_back(0);
+    path.push_back(startIdx);
 
-    std::vector<double> costs;
-    costs.reserve(numCities*2);
-    costs.push_back(0);
-
-    double pathCost = 0;
-    int start = 0;
+    bool *visitedTable = calloc(numCities, sizeof(bool));
+    int start;
 
     for (int i = 0; i < numCities; ++i)
     {
         if (!visitedTable[i])
         {
             start = path.back();
-            pathCost += cityMap[start][i];
-
             for (int j = 0; j < routeMap[start][i].size(); ++j)
             {
                 int toAdd = routeMap[start][i][j];
@@ -82,9 +76,7 @@ std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable,
 
     start = path.back();
     if (start != 0) {
-        pathCost += cityMap[start][0];
-
-        for (int j = 1; j < routeMap[start][0].size(); ++j)
+        for (int j = 0; j < routeMap[start][0].size(); ++j)
         {
             int toAdd = routeMap[start][0][j];
             path.push_back(toAdd);
@@ -92,25 +84,39 @@ std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable,
         }
     }
 
+    free(visitedTable);
+
     return path;
 }
 
-double get_distance(int a_Id, int b_Id) {
-    double R = 6367.4447;    // radius of the earth according to wolfram alpha and Siri (who used wolfram)
-    double lat1 = deg2rad(lats[a_Id]);
-    double lat2 = deg2rad(lats[b_Id]);
-    double lon1 = deg2rad(longs[a_Id]);
-    double lon2 = deg2rad(longs[b_Id]);
+void printToCSV(const char* filename, std::vector<int> &path, 
+                std::vector<route> &routeList, std::map<int, airport> airports) {
+    ofstream Out_File(fileName);
 
-    double dlon = lon2 - lon1;
-    double dlat = lat2 - lat1;
+    // headings for file
+    Out_File << "City;Airport Code;Trip Distance (km);Total Distance (km)" << endl;
 
-    double u = sin(dlat/2);
-    double v = sin(dlon/2);
+    // do initial location
+    route curRoute = routeList[0];
+    airport curAirport = airport[curRoute.from];
+    Out_File << curAirport.cityName << ";" 
+             << curAirport.alias << ";" 
+             << 0 << ";" << 0 << endl;
 
-    double a = u*u + cos(lat1) * cos(lat2) * v*v;
-    double c = 2.0 * atan2(sqrt(a), sqrt(1-a)) ;
-    double d = R * c;
+    // fill table
+    for (int i = 0, double pathCost = 0; i < path.size(); ++i) {
+        curRoute = routeList[i];
+        curAirport = airport[curRoute.to];
 
-    return d;
+        // get the current total cost after flight
+        pathCost += curRoute.distance;
+
+        Out_File << curAirport.cityName << ";" 
+                 << curAirport.alias << ";" 
+                 << curRoute.distance << ";" 
+                 << pathCost << endl;   
+    }
+
+    // close the file
+    Out_File.close();
 }
