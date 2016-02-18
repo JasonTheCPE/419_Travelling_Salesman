@@ -1,6 +1,8 @@
 #include <math.h>       /* sin */
 #include <vector>
+#include <fstream>
 
+#define PI 3.14159265
 #define Deg2Rad(a) (a * 3.14159265/180.0)
 
 using namespace std;
@@ -26,8 +28,7 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 }
 
 //floyd algorithm, get any two points's minimum distance
-void createFloydTable(int numCities, double**cityMap, 
-                        std::vector< std::vector< std::vector<int> > > airMap) {
+void createFloydTable(int numCities, double**cityMap, std::vector< std::vector< std::vector<int> > > &routeMap) {
     for (int k = 0; k < numCities; k++) {
         for (int i = 0; i < numCities; i++) {
             for (int j = 0; j < numCities; j++) {
@@ -38,10 +39,10 @@ void createFloydTable(int numCities, double**cityMap,
                         cityMap[i][j] = newLength;
 
                         // create the new vector
-                        airMap[i][j].clear();
-                        airMap[i][j].reserve( airMap[i][k].size() + airMap[k][j].size() ); // preallocate memory
-                        airMap[i][j].insert( airMap[i][j].end(), airMap[i][k].begin(), airMap[i][k].end() );
-                        airMap[i][j].insert( airMap[i][j].end(), airMap[k][j].begin(), airMap[k][j].end() );
+                        routeMap[i][j].clear();
+                        routeMap[i][j].reserve( routeMap[i][k].size() + routeMap[k][j].size() ); // preallocate memory
+                        routeMap[i][j].insert( routeMap[i][j].end(), routeMap[i][k].begin(), routeMap[i][k].end() );
+                        routeMap[i][j].insert( routeMap[i][j].end(), routeMap[k][j].begin(), routeMap[k][j].end() );
                     }
                 }
             }
@@ -50,24 +51,23 @@ void createFloydTable(int numCities, double**cityMap,
 }
 
 // very naive TSP
-std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable, 
-                            double**cityMap, std::vector< std::vector< std::vector<int> > > airMap) {
+std::vector<int> createRoute(int numCities, int startIdx, double**cityMap, 
+                            std::vector< std::vector< std::vector<int> > > &routeMap) {
     std::vector<int> path;
-    path.reserve(numCities);
-    path.push_back(0);
-    double pathCost = 0;
-    int start = 0;
+    path.reserve(numCities*2);
+    path.push_back(startIdx);
+
+    bool *visitedTable = calloc(numCities, sizeof(bool));
+    int start;
 
     for (int i = 0; i < numCities; ++i)
     {
         if (!visitedTable[i])
         {
             start = path.back();
-            pathCost += cityMap[start][i];
-
-            for (int j = 1; j < airMap[start][i].size(); ++j)
+            for (int j = 0; j < routeMap[start][i].size(); ++j)
             {
-                int toAdd = airMap[start][i][j];
+                int toAdd = routeMap[start][i][j];
                 path.push_back(toAdd);
                 visitedTable[toAdd] = true;
             }
@@ -76,15 +76,47 @@ std::vector<int> createRoute(int numCities, std::vector<bool> visitedTable,
 
     start = path.back();
     if (start != 0) {
-        pathCost += cityMap[start][0];
-
-        for (int j = 1; j < airMap[start][0].size(); ++j)
+        for (int j = 0; j < routeMap[start][0].size(); ++j)
         {
-            int toAdd = airMap[start][0][j];
+            int toAdd = routeMap[start][0][j];
             path.push_back(toAdd);
             visitedTable[toAdd] = true;
         }
     }
 
+    free(visitedTable);
+
     return path;
+}
+
+void printToCSV(const char* filename, std::vector<int> &path, 
+                std::vector<route> &routeList, std::map<int, airport> airports) {
+    ofstream Out_File(fileName);
+
+    // headings for file
+    Out_File << "City;Airport Code;Trip Distance (km);Total Distance (km)" << endl;
+
+    // do initial location
+    route curRoute = routeList[0];
+    airport curAirport = airport[curRoute.from];
+    Out_File << curAirport.cityName << ";" 
+             << curAirport.alias << ";" 
+             << 0 << ";" << 0 << endl;
+
+    // fill table
+    for (int i = 0, double pathCost = 0; i < path.size(); ++i) {
+        curRoute = routeList[i];
+        curAirport = airport[curRoute.to];
+
+        // get the current total cost after flight
+        pathCost += curRoute.distance;
+
+        Out_File << curAirport.cityName << ";" 
+                 << curAirport.alias << ";" 
+                 << curRoute.distance << ";" 
+                 << pathCost << endl;   
+    }
+
+    // close the file
+    Out_File.close();
 }
