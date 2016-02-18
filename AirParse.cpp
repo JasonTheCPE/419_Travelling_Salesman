@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "AirParse.h"
-#include "airprt.h"
+#include "airport.h"
 
 using namespace std;
 
@@ -11,9 +11,9 @@ using namespace std;
  */
 void GetAllInfo(const char* routeFilename, const char* airportsFilename,
                 std::map<std::string, city> *cities,
-                std::map<int, airport> *airports) {
+                std::map<int, airport> *airports, int *routeNum) {
 
-   GetRouteInfo(routeFilename, airports);
+   GetRouteInfo(routeFilename, airports, routeNum);
    GetCityAirportsInfo(airportsFilename, cities, airports);
 }
 
@@ -81,6 +81,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
                case CITYNAME_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
                   (*cities)[line.substr(prev, pos - prev)].containedAirportIDs.push_back(tempInt);
+                  (*airports)[tempInt].cityName = line.substr(prev, pos - prev);
                   break;
                case LAT_INDEX:
                   //cout << "LAT: " << line.substr(prev, pos - prev) << endl;
@@ -120,7 +121,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
  * string alias
  */
 void GetRouteInfo(const char* routeFilename,
-                  std::map<int, airport> *airports) {
+                  std::map<int, airport> *airports, int *routeNum) {
 
    ifstream inFile(routeFilename);
    stringstream ss, conv;
@@ -184,3 +185,19 @@ void GetRouteInfo(const char* routeFilename,
    cout << "Routes: " << numRoutes << endl;
 }
 
+void FillRouteVector(std::vector<route> &routes,
+                std::vector<std::vector<std::vector<int> > > &airMap,
+                std::map<std::string, city> &cities,
+                std::map<int, airport> &airports) {
+
+   int i = 0;
+   typedef map<int, airport>::iterator it_type;
+   for(it_type iterator = airports.begin(); iterator != airports.end(); ++iterator) {
+      vector<int> outgoingIDs = (iterator->second).outgoingIDs;
+      for(int j = 0; j < outgoingIDs.size(); ++j) {
+         routes[i].from = iterator->first;
+         routes[i].to = outgoingIDs[j];
+         ++i;
+      }
+   }
+}

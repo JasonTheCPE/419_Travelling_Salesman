@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>       /* sin */
-#include "airprt.h"
+#include "airport.h"
 #include "AirParse.h"
 #include "tsp.h"
 
@@ -9,13 +9,18 @@ using namespace std;
 int main(int argc, const char *argv[]) {
    map<int,airport> airports;
    map<string,city> cities;
+   vector<route> routes;
+   vector<vector<vector<int> > > airMap;
+   int routeNum;
 
    if(argc != 3) {
       cout << "Usage: partsp <routes.dat> <airports.dat>" << endl;
       exit(EXIT_FAILURE);
    }
 
-   GetAllInfo(argv[1], argv[2], &cities, &airports);
+   GetAllInfo(argv[1], argv[2], &cities, &airports, &routeNum);
+   routes.resize(routeNum);
+   FillRouteVector(routes, airMap, cities, airports);
 
 /*
    for(int i = 0; i < ab.numAirports; i++) {
