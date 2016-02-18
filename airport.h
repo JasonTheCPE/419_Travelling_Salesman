@@ -7,6 +7,7 @@
 typedef struct airport
 {
    std::string cityName;
+   int cityID;
    std::string alias;
    double lat;
    double lon;

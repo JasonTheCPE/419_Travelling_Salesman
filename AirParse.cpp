@@ -3,6 +3,7 @@
 #include <string>
 #include "AirParse.h"
 #include "airport.h"
+#include "tsp.h"
 
 using namespace std;
 
@@ -11,10 +12,11 @@ using namespace std;
  */
 void GetAllInfo(const char* routeFilename, const char* airportsFilename,
                 std::map<std::string, city> *cities,
+                std::vector<std::string> *cityNames,
                 std::map<int, airport> *airports, int *routeNum) {
 
    GetRouteInfo(routeFilename, airports, routeNum);
-   GetCityAirportsInfo(airportsFilename, cities, airports);
+   GetCityAirportsInfo(airportsFilename, cities, cityNames, airports);
 }
 
 /*
@@ -32,13 +34,14 @@ void GetAllInfo(const char* routeFilename, const char* airportsFilename,
  */
 void GetCityAirportsInfo(const char* airportsFilename,
                          std::map<std::string, city> *cities,
+                         std::vector<std::string> *cityNames,
                          std::map<int, airport> *airports) {
 
    ifstream inFile(airportsFilename);
    stringstream ss, conv;
    string line;
    string delimiters = ",\"";
-   int numAirports = 0;
+   //int numAirports = 0;
    int numCities = 0;
    bool skip;
    int index;
@@ -46,6 +49,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
 
    int tempInt;
    double tempDbl;
+   string cityName;
 
    if(!inFile) {
       cerr << "Problem reading from " << airportsFilename << endl;
@@ -75,13 +79,20 @@ void GetCityAirportsInfo(const char* airportsFilename,
                      skip = true;
                   } else {
                      // Airport has routes from, continue gathering info
-                     ++numAirports;
+                     //++numAirports;
                   }
                   break;
                case CITYNAME_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
-                  (*cities)[line.substr(prev, pos - prev)].containedAirportIDs.push_back(tempInt);
-                  (*airports)[tempInt].cityName = line.substr(prev, pos - prev);
+                  cityName = line.substr(prev, pos - prev);
+                  (*airports)[tempInt].cityID = (*cityNames).size();
+                  if((*cities).find(cityName) == (*cities).end()) {
+                     // Add cities to the name list only once
+                     (*cityNames).push_back(cityName);
+                  }
+
+                  (*cities)[cityName].containedAirportIDs.push_back(tempInt);
+                  (*airports)[tempInt].cityName = cityName;
                   break;
                case LAT_INDEX:
                   //cout << "LAT: " << line.substr(prev, pos - prev) << endl;
@@ -109,7 +120,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
    }
    
    cout << "Cities: " << (*cities).size() << endl;
-   cout << "Airports: " << numAirports << endl;
+   //cout << "Airports: " << numAirports << endl;
 }
 
 /*
@@ -160,6 +171,8 @@ void GetRouteInfo(const char* routeFilename,
                   conv.str("");
                   conv << line.substr(prev, pos - prev);
                   conv >> sourceID;
+
+                  //TODO ERROR CHECK
                   (*airports)[sourceID].alias = tempStr;
                   break;
                case DESTID_INDEX:
@@ -185,19 +198,43 @@ void GetRouteInfo(const char* routeFilename,
    cout << "Routes: " << numRoutes << endl;
 }
 
+/*
+ * [from][to]
+ */
 void FillRouteVector(std::vector<route> &routes,
                 std::vector<std::vector<std::vector<int> > > &airMap,
                 std::map<std::string, city> &cities,
+                std::vector<std::string> &cityNames,
                 std::map<int, airport> &airports) {
 
-   int i = 0;
-   typedef map<int, airport>::iterator it_type;
-   for(it_type iterator = airports.begin(); iterator != airports.end(); ++iterator) {
-      vector<int> outgoingIDs = (iterator->second).outgoingIDs;
-      for(int j = 0; j < outgoingIDs.size(); ++j) {
-         routes[i].from = iterator->first;
-         routes[i].to = outgoingIDs[j];
-         ++i;
+   int rtIndex = 0;
+   for(int cityIndex = 0; cityIndex < cityNames.size(); ++cityIndex) {
+//cout << "cityIndex: " << cityIndex << endl;
+      vector<int> cityAirports = cities[cityNames[cityIndex]].containedAirportIDs;
+      for(int fromIndex = 0; fromIndex < cityAirports.size(); ++fromIndex) {
+         vector<int> outgoingAirports = airports[cityAirports[fromIndex]].outgoingIDs;
+         int fromID = cityAirports[fromIndex];
+         airMap[cityIndex].resize(cityNames.size());
+//cout << "fromID: " << fromID << endl;
+
+         for(int toIndex = 0; toIndex < outgoingAirports.size(); ++toIndex) {
+            int destCityIndex = airports[outgoingAirports[toIndex]].cityID;
+            int toID = outgoingAirports[toIndex];
+//cout << "toID: " << toID << endl;
+//cout << "destCityIndex: " << destCityIndex << endl;
+//cout << "rtIndex: " << rtIndex << endl;
+//cout << "CITYNAME: " << cityNames[destCityIndex] << endl;
+            routes[rtIndex].from = cityIndex;
+            routes[rtIndex].to = destCityIndex;
+            routes[rtIndex].distance = get_distance(airports[fromID].lat,
+                      airports[fromID].lon, airports[toID].lat, airports[toID].lon);
+            airMap[cityIndex][destCityIndex].push_back(rtIndex);
+            ++rtIndex;
+         }
       }
+   }
+
+   for(int i = 0; i < 20; i++) {
+      cout << "Route: " << i << " from=" << routes[i].from << " to=" << routes[i].to << " dist=" << routes[i].distance << endl;
    }
 }

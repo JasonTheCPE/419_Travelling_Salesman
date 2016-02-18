@@ -9,6 +9,7 @@ using namespace std;
 int main(int argc, const char *argv[]) {
    map<int,airport> airports;
    map<string,city> cities;
+   vector<string> cityNames;
    vector<route> routes;
    vector<vector<vector<int> > > airMap;
    int routeNum;
@@ -18,9 +19,11 @@ int main(int argc, const char *argv[]) {
       exit(EXIT_FAILURE);
    }
 
-   GetAllInfo(argv[1], argv[2], &cities, &airports, &routeNum);
+   GetAllInfo(argv[1], argv[2], &cities, &cityNames, &airports, &routeNum);
    routes.resize(routeNum);
-   FillRouteVector(routes, airMap, cities, airports);
+   airMap.resize(cities.size());
+   //cout << "cityNames: " << cityNames.size() << endl;
+   FillRouteVector(routes, airMap, cities, cityNames, airports);
 
 /*
    for(int i = 0; i < ab.numAirports; i++) {
