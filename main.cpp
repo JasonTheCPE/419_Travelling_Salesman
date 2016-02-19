@@ -20,7 +20,6 @@ int main(int argc, const char *argv[]) {
    }
 
    GetAllInfo(argv[1], argv[2], &cities, &cityNames, &airports, &routeNum);
-
    routes.resize(routeNum);
    airMap.resize(cities.size());
 
@@ -30,25 +29,25 @@ int main(int argc, const char *argv[]) {
    
    //cout << "cityNames: " << cityNames.size() << endl;
    FillRouteVector(routes, airMap, cityMap, cities, cityNames, airports);
-   
+  
+   for(int i = 0; i < cityMapSize; ++i) {
+      cerr << "City: " << cityNames[i] << endl;
+      vector<int> arpts = cities[cityNames[i]].containedAirportIDs;
+      for(int j = 0; j < arpts.size(); ++j) {
+         cerr << "Airport: " << arpts[j] << endl;
+         vector<int> outgoing = airports[arpts[j]].outgoingIDs;
+         for(int k = 0; k < outgoing.size(); ++k) {
+            cerr << "Outgoing: " << outgoing[k] << " - City: " << airports[outgoing[k]].cityName << endl;
+         }
+      }
+   }
+
+ 
+   cerr << "\nRunning Floyd Table\n";
+
    createFloydTable(cities.size(), cityMap, airMap);
-   //route = createRoute(numCities, TODO_Slo_index_in_table, TODO, airMap);
+   vector<int> route = createRoute(cityMapSize, airports[5768].cityID, cityMap, airMap);
+   printToCSV("results.csv", route, routes, airports); 
 
-/*
-   for(int i = 0; i < ab.numAirports; i++) {
-      cout << "id: " << ab.ids[i] << endl;
-      cout << "city: " << ab.cities[i] << endl;
-      cout << "alias: " << ab.alias[i] << endl;
-      cout << "lat: " << ab.lats[i] << endl;
-      cout << "lon: " << ab.longs[i] << endl << endl;
-   }
-
-   for(int i = 0; i < rt.numRoutes; i++) {
-      cout << "sourceid: " << rt.sourceID[i] << endl;
-      cout << "destid: " << rt.destID[i] << endl;
-      cout << "sourcealias: " << rt.sourceAlias[i] << endl;
-      cout << "destalias: " << rt.destAlias[i] << endl << endl;
-   }
-*/
    return 0;
 }

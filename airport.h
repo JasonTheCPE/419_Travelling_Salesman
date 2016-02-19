@@ -17,9 +17,10 @@ typedef struct airport
 typedef struct city
 {
    std::vector<int> containedAirportIDs;
-   std::vector<int> nextVisitedAirportID;
-   std::vector<std::string> nextVisitedCity;
-   int visitedCount;
+   //int stringVectorID;
+   //std::vector<int> nextVisitedAirportID;
+   //std::vector<std::string> nextVisitedCity;
+   //int visitedCount;
 }city;
 
 typedef struct route

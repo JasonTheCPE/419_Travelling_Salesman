@@ -120,7 +120,6 @@ void GetCityAirportsInfo(const char* airportsFilename,
    }
    
    cout << "Cities: " << (*cities).size() << endl;
-   //cout << "Airports: " << numAirports << endl;
 }
 
 /*
@@ -133,17 +132,17 @@ void GetCityAirportsInfo(const char* airportsFilename,
  */
 void GetRouteInfo(const char* routeFilename,
                   std::map<int, airport> *airports, int *routeNum) {
-
    ifstream inFile(routeFilename);
    stringstream ss, conv;
    string line;
    string delimiters = ",";
-   int numRoutes = 0;
    int index;
    size_t prev, pos;
 
    int sourceID, destID;
    string tempStr;
+
+   *routeNum = 0;
 
    if(!inFile) {
       cerr << "Problem reading from " << routeFilename<< endl;
@@ -191,11 +190,11 @@ void GetRouteInfo(const char* routeFilename,
          }
          prev = pos + 1;
       }
-      ++numRoutes;
+      ++(*routeNum);
    }
    
    cout << "Airports: " << (*airports).size() << endl;
-   cout << "Routes: " << numRoutes << endl;
+   cout << "Routes: " << (*routeNum) << endl;
 }
 
 /*
@@ -236,7 +235,7 @@ void FillRouteVector(std::vector<route> &routes,
       }
    }
 
-   for(int i = 0; i < 20; i++) {
+  /* for(int i = 0; i < 5; i++) {
       cout << "Route: " << i << " from=" << routes[i].from << " to=" << routes[i].to << " dist=" << routes[i].distance << endl;
-   }
+   }*/
 }
