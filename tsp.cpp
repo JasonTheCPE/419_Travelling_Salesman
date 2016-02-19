@@ -5,6 +5,7 @@
 #include <map>
 #include <stdio.h>
 #include <iostream>
+#include <limits>
 
 #include "tsp.h"
 
@@ -66,13 +67,17 @@ void createFloydTable(int numCities, double**cityMap, std::vector< std::vector< 
 }
 
 // very naive TSP
-std::vector<int> createRoute(int numCities, int startIdx, double**cityMap, 
+std::vector<int> createRoute(int numCities, int startIdx, std::vector< std::vector<double> > &cityMap, 
                             std::vector< std::vector< std::vector<int> > > &routeMap) {
     std::vector<int> path;
     path.reserve(numCities*2);
 
     bool *visitedTable = (bool *)calloc(numCities, sizeof(bool));
     int lastCity = startIdx;
+
+    for (int i = 0; i < numCities; ++i)
+        if (cityMap[startIdx][i] == numeric_limits<double>::max())
+            visitedTable[i] = true;
 
     for (int i = 0; i < numCities; ++i)
     {
