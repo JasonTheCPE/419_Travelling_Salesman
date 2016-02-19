@@ -2,9 +2,9 @@ Jason Swanson (jswans04@calpoly.edu)
 Andrew Acosta (aacost06@calpoly.edu)
 Project #3 for CPE419 (Applied Parallel Computing)
 
-Usage: partsp <airports.dat> <routes.dat>
+Usage: partsp <routes.dat> <airports.dat>
 
-To build run make. Options can be specified as in "make OPTION=1".
+To build: run make. Options can be specified as in "make OPTION=1".
 
 Make options:
    REPORT: Generates an optimization report for the binary partsp or the

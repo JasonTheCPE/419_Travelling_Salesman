@@ -25,3 +25,6 @@ partsp: $(SRCFILES) main.cpp
 
 clean:
 	rm -f *.o partsp result.csv *.optrpt *~
+
+testrun:
+    ./partsp test_routes.dat test_airports.dat
