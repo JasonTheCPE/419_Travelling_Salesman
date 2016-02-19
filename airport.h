@@ -27,6 +27,8 @@ typedef struct route
 {
    int from;
    int to;
+   int fromID;
+   int toID;
    double distance;
 }route;
 

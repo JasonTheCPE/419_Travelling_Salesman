@@ -18,8 +18,10 @@ int main(int argc, const char *argv[]) {
       cout << "Usage: partsp <routes.dat> <airports.dat>" << endl;
       exit(EXIT_FAILURE);
    }
-
+   
+   cout << "Parsing Input files\n";
    GetAllInfo(argv[1], argv[2], cities, cityNames, airports, routeNum);
+
    routes.resize(routeNum);
    airMap.resize(cities.size());
 
@@ -27,9 +29,9 @@ int main(int argc, const char *argv[]) {
    vector<vector<double> > cityMap(cityMapSize,
           vector<double>(cityMapSize, numeric_limits<double>::max()));
    
-   //cout << "cityNames: " << cityNames.size() << endl;
    FillRouteVector(routes, airMap, cityMap, cities, cityNames, airports);
-  
+
+#ifdef DEBUG 
    for(int i = 0; i < cityMapSize; ++i) {
       cout << "City: " << cityNames[i] << endl;
       vector<int> arpts = cities[cityNames[i]].containedAirportIDs;
@@ -41,21 +43,15 @@ int main(int argc, const char *argv[]) {
          }
       }
    }
- 
-   cerr << "\nRunning Floyd Table\n";
+#endif
 
+   cout << "Constructing Floyd Table\n";
    createFloydTable(cities.size(), cityMap, airMap);
+
+   cout << "Creating Approximate Route\n";
    vector<int> rts = createRoute(cityMapSize, airports[5768].cityID, cityMap, airMap);
 
-
-   for(int i = 0; i < rts.size(); ++i) {
-      int from = routes[rts[i]].from;
-      int to = routes[rts[i]].to;
-      cout << i << ": from=" << from << " City:" << airports[from].cityName
-                << " to=" << to << " City:" << airports[to].cityName << endl;
-         
-   }
-
+   cout << "Writing results.csv\n";
    printToCSV("results.csv", rts, routes, airports, cityNames); 
 
    return 0;

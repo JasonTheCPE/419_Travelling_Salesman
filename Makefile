@@ -22,9 +22,8 @@ partsp: $(SRCFILES) main.cpp
 %.o: $.c $(PARSETESTSRCFILES)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<
 	
-
 clean:
 	rm -f *.o partsp result.csv *.optrpt *~
 
 testrun:
-    ./partsp test_routes.dat test_airports.dat
+	./partsp test_routes.dat test_airports.dat

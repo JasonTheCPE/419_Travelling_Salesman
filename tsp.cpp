@@ -45,6 +45,7 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
             routeMap[i][j].push_back(j);
 
     for (int k = 0; k < numCities; k++) {
+        cout << "\rProgress: " << 100.0 *  k / numCities << "%  ";
         for (int i = 0; i < numCities; i++) {
             //#pragma omp parallel for // need to send in routeMap and cityMap to xeonphi
             for (int j = 0; j < numCities; j++) {
@@ -64,6 +65,7 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
             }
         }
     }
+    cout << '\r';
 }
 
 // very naive TSP
@@ -114,31 +116,41 @@ void printToCSV(const char* filename, std::vector<int> &path,
                 std::vector<std::string> &cityNames) {
     ofstream Out_File(filename);
 
+cerr << "CSV 1\n";
     // headings for file
-    Out_File << "City;Airport Code;Trip Distance (km);Total Distance (km)" << endl;
+    Out_File << "City,Airport Code,Trip Distance (km),Total Distance (km)" << endl;
 
     // do initial location
-    route curRoute = routeList[0];
-    airport curAirport = airports[curRoute.from];
-    Out_File << curAirport.cityName << ";" 
-             << curAirport.alias << ";" 
-             << 0 << ";" << 0 << endl;
+    route curRoute = routeList[path[0]];
+    Out_File << cityNames[curRoute.from] << "," 
+             << airports[curRoute.fromID].alias << "," 
+             << 0 << "," << 0 << endl;
 
+for(int i = 0; i < routeList.size(); ++i) {
+   cout << i << ": " << "RT: " << routeList[i].to << " PATH: " << path[i] << endl;
+}
+
+cerr << "CSV 2\n";
     // fill table
     double pathCost = 0;
     for (int i = 0; i < path.size(); ++i) {
+cerr << "i " << i << endl;
         curRoute = routeList[path[i]];
-        curAirport = airports[curRoute.to];
+cerr << "TO: " << curRoute.to << endl;
 
         // get the current total cost after flight
         pathCost += curRoute.distance;
+cerr << "pathCost: " << pathCost << endl;
+cerr << "cityName: " << cityNames[curRoute.to] << endl;
+cerr << "alias: " << airports[curRoute.toID].alias << endl;
 
-        Out_File << curAirport.cityName << ";" 
-                 << curAirport.alias << ";" 
-                 << curRoute.distance << ";" 
+        Out_File << cityNames[curRoute.to] << "," 
+                 << airports[curRoute.toID].alias << "," 
+                 << curRoute.distance << "," 
                  << pathCost << endl;   
     }
 
+cerr << "CSV 3\n";
     // close the file
     Out_File.close();
 }
