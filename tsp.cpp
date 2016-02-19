@@ -37,17 +37,16 @@ double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) 
 //floyd algorithm, get any two points's minimum distance
 void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap, 
                         std::vector< std::vector< std::vector<int> > > &routeMap) {
-    for (int i = 0; i < numCities; ++i)
-    {
-        for (int j = 0; j < numCities; ++j)
-        {
-            routeMap[i][j].push_back(j);
-        }
-    }
 
+    //#pragma omp parallel for      // would need to send in routemap into xeonphi
+    for (int i = 0; i < numCities; ++i)
+        //#pragma omp simd
+        for (int j = 0; j < numCities; ++j)
+            routeMap[i][j].push_back(j);
 
     for (int k = 0; k < numCities; k++) {
         for (int i = 0; i < numCities; i++) {
+            //#pragma omp parallel for // need to send in routeMap and cityMap to xeonphi
             for (int j = 0; j < numCities; j++) {
                 if (i != j && i != k && j != k) {
                     double newLength = cityMap[i][k]+cityMap[k][j];
@@ -76,6 +75,7 @@ std::vector<int> createRoute(int numCities, int startIdx, std::vector< std::vect
     bool *visitedTable = (bool *)calloc(numCities, sizeof(bool));
     int lastCity = startIdx;
 
+    // #pragma omp parallel for simd
     for (int i = 0; i < numCities; ++i)
         if (cityMap[startIdx][i] == numeric_limits<double>::max())
             visitedTable[i] = true;
