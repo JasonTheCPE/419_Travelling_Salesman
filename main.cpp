@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <math.h>       /* sin */
+#include <limits>
 #include "airport.h"
 #include "AirParse.h"
 #include "tsp.h"
@@ -20,13 +20,19 @@ int main(int argc, const char *argv[]) {
    }
 
    GetAllInfo(argv[1], argv[2], &cities, &cityNames, &airports, &routeNum);
+
    routes.resize(routeNum);
    airMap.resize(cities.size());
-   //cout << "cityNames: " << cityNames.size() << endl;
-   FillRouteVector(routes, airMap, cities, cityNames, airports);
+
+   int cityMapSize = cities.size();
+   vector<vector<double> > cityMap(cityMapSize,
+          vector<double>(cityMapSize, numeric_limits<double>::max()));
    
-   // createFloydTable(cities.size(), TODO, airMap);
-   // route = createRoute(numCities, TODO_Slo_index_in_table, TODO, airMap);
+   //cout << "cityNames: " << cityNames.size() << endl;
+   FillRouteVector(routes, airMap, cityMap, cities, cityNames, airports);
+   
+   createFloydTable(cities.size(), cityMap, airMap);
+   //route = createRoute(numCities, TODO_Slo_index_in_table, TODO, airMap);
 
 /*
    for(int i = 0; i < ab.numAirports; i++) {

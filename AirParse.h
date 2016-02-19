@@ -39,6 +39,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
 
 void FillRouteVector(std::vector<route> &routes,
                 std::vector<std::vector<std::vector<int> > > &airMap,
+                std::vector<std::vector<double> > &cityMap,
                 std::map<std::string, city> &cities,
                 std::vector<std::string> &cityNames,
                 std::map<int, airport> &airports);

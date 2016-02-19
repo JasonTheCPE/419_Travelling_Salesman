@@ -203,6 +203,7 @@ void GetRouteInfo(const char* routeFilename,
  */
 void FillRouteVector(std::vector<route> &routes,
                 std::vector<std::vector<std::vector<int> > > &airMap,
+                std::vector<std::vector<double> > &cityMap,
                 std::map<std::string, city> &cities,
                 std::vector<std::string> &cityNames,
                 std::map<int, airport> &airports) {
@@ -228,6 +229,7 @@ void FillRouteVector(std::vector<route> &routes,
             routes[rtIndex].to = destCityIndex;
             routes[rtIndex].distance = get_distance(airports[fromID].lat,
                       airports[fromID].lon, airports[toID].lat, airports[toID].lon);
+            cityMap[cityIndex][destCityIndex] = routes[rtIndex].distance;
             airMap[cityIndex][destCityIndex].push_back(rtIndex);
             ++rtIndex;
          }
