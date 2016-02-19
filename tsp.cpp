@@ -110,7 +110,8 @@ std::vector<int> createRoute(int numCities, int startIdx, std::vector< std::vect
 }
 
 void printToCSV(const char* filename, std::vector<int> &path, 
-                std::vector<route> &routeList, std::map<int, airport> airports) {
+                std::vector<route> &routeList, std::map<int, airport> airports,
+                std::vector<std::string> &cityNames) {
     ofstream Out_File(filename);
 
     // headings for file
@@ -126,7 +127,7 @@ void printToCSV(const char* filename, std::vector<int> &path,
     // fill table
     double pathCost = 0;
     for (int i = 0; i < path.size(); ++i) {
-        curRoute = routeList[i];
+        curRoute = routeList[path[i]];
         curAirport = airports[curRoute.to];
 
         // get the current total cost after flight

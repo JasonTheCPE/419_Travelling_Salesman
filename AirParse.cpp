@@ -11,9 +11,9 @@ using namespace std;
  * Fills out the maps for airports and cities.
  */
 void GetAllInfo(const char* routeFilename, const char* airportsFilename,
-                std::map<std::string, city> *cities,
-                std::vector<std::string> *cityNames,
-                std::map<int, airport> *airports, int *routeNum) {
+                std::map<std::string, city> &cities,
+                std::vector<std::string> &cityNames,
+                std::map<int, airport> &airports, int &routeNum) {
 
    GetRouteInfo(routeFilename, airports, routeNum);
    GetCityAirportsInfo(airportsFilename, cities, cityNames, airports);
@@ -33,9 +33,9 @@ void GetAllInfo(const char* routeFilename, const char* airportsFilename,
  * double lon
  */
 void GetCityAirportsInfo(const char* airportsFilename,
-                         std::map<std::string, city> *cities,
-                         std::vector<std::string> *cityNames,
-                         std::map<int, airport> *airports) {
+                         std::map<std::string, city> &cities,
+                         std::vector<std::string> &cityNames,
+                         std::map<int, airport> &airports) {
 
    ifstream inFile(airportsFilename);
    stringstream ss, conv;
@@ -74,25 +74,24 @@ void GetCityAirportsInfo(const char* airportsFilename,
                   conv.str("");
                   conv << line.substr(prev, pos - prev);
                   conv >> tempInt;
-                  if((*airports).find(tempInt) == (*airports).end()) {
+                  if(airports.find(tempInt) == airports.end()) {
                      // Airport has no routes from in the route table, skip rest of line
                      skip = true;
                   } else {
                      // Airport has routes from, continue gathering info
-                     //++numAirports;
                   }
                   break;
                case CITYNAME_INDEX:
                   //cout << "CITYNAME: " << line.substr(prev, pos - prev) << endl;
                   cityName = line.substr(prev, pos - prev);
-                  (*airports)[tempInt].cityID = (*cityNames).size();
-                  if((*cities).find(cityName) == (*cities).end()) {
+                  airports[tempInt].cityID = cityNames.size();
+                  airports[tempInt].cityName = string(cityName);
+                  if(cities.find(cityName) == cities.end()) {
                      // Add cities to the name list only once
-                     (*cityNames).push_back(cityName);
+                     cityNames.push_back(cityName);
                   }
 
-                  (*cities)[cityName].containedAirportIDs.push_back(tempInt);
-                  (*airports)[tempInt].cityName = cityName;
+                  cities[cityName].containedAirportIDs.push_back(tempInt);
                   break;
                case LAT_INDEX:
                   //cout << "LAT: " << line.substr(prev, pos - prev) << endl;
@@ -100,7 +99,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
                   conv.str("");
                   conv.str(line.substr(prev, pos - prev));
                   conv >> tempDbl;
-                  (*airports)[tempInt].lat = tempDbl;
+                  airports[tempInt].lat = tempDbl;
                   break;
                case LON_INDEX:
                   //cout << "LON: " << line.substr(prev, pos - prev) << endl;
@@ -108,7 +107,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
                   conv.str("");
                   conv.str(line.substr(prev, pos - prev));
                   conv >> tempDbl;
-                  (*airports)[tempInt].lon = tempDbl;
+                  airports[tempInt].lon = tempDbl;
                   break;
                default:
                   break;
@@ -119,7 +118,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
       }
    }
    
-   cout << "Cities: " << (*cities).size() << endl;
+   cout << "Cities: " << cities.size() << endl;
 }
 
 /*
@@ -131,7 +130,7 @@ void GetCityAirportsInfo(const char* airportsFilename,
  * string alias
  */
 void GetRouteInfo(const char* routeFilename,
-                  std::map<int, airport> *airports, int *routeNum) {
+                  std::map<int, airport> &airports, int &routeNum) {
    ifstream inFile(routeFilename);
    stringstream ss, conv;
    string line;
@@ -142,7 +141,7 @@ void GetRouteInfo(const char* routeFilename,
    int sourceID, destID;
    string tempStr;
 
-   *routeNum = 0;
+   routeNum = 0;
 
    if(!inFile) {
       cerr << "Problem reading from " << routeFilename<< endl;
@@ -172,7 +171,7 @@ void GetRouteInfo(const char* routeFilename,
                   conv >> sourceID;
 
                   //TODO ERROR CHECK
-                  (*airports)[sourceID].alias = tempStr;
+                  airports[sourceID].alias = tempStr;
                   break;
                case DESTID_INDEX:
                   //cout << "ID: " << line.substr(prev, pos - prev) << endl;
@@ -181,7 +180,7 @@ void GetRouteInfo(const char* routeFilename,
                   conv << line.substr(prev, pos - prev);
                   conv >> destID;
                   // Add outgoing route information to each airport
-                  (*airports)[sourceID].outgoingIDs.push_back(destID);
+                  airports[sourceID].outgoingIDs.push_back(destID);
                   break;
                default:
                   break;
@@ -190,11 +189,11 @@ void GetRouteInfo(const char* routeFilename,
          }
          prev = pos + 1;
       }
-      ++(*routeNum);
+      ++routeNum;
    }
    
-   cout << "Airports: " << (*airports).size() << endl;
-   cout << "Routes: " << (*routeNum) << endl;
+   cout << "Airports: " << airports.size() << endl;
+   cout << "Routes: " << routeNum << endl;
 }
 
 /*
