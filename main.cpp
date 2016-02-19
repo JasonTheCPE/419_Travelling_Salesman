@@ -24,6 +24,9 @@ int main(int argc, const char *argv[]) {
    airMap.resize(cities.size());
    //cout << "cityNames: " << cityNames.size() << endl;
    FillRouteVector(routes, airMap, cities, cityNames, airports);
+   
+   // createFloydTable(cities.size(), TODO, airMap);
+   // route = createRoute(numCities, TODO_Slo_index_in_table, TODO, airMap);
 
 /*
    for(int i = 0; i < ab.numAirports; i++) {
