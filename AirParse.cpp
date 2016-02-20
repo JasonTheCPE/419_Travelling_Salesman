@@ -218,26 +218,11 @@ void GetRouteInfo(const char* routeFilename,
          prev = pos + 1;
       }
    }
-map<int, airport>::iterator it;
-int trueNum = 0;
-for(it = airports.begin(); it != airports.end(); it++) {
-   airport ap = it->second;
-   vector<int> outs =  ap.outgoingIDs;
-   trueNum += outs.size();
-   for(int j = 0; j < outs.size(); ++j) {
-      if(outs[j] == 0) {
-         cerr << "CITY: " << ap.cityName
-              << "CITYID: " << ap.cityID
-              << "ALIAS: " << ap.alias << endl;
-      }
-   }
-}
-   cerr << "TrueRoutes: " << trueNum << endl;
-routeNum = trueNum;
-//#ifdef DEBUG
+
+#ifdef DEBUG
    cerr << "Airports: " << airports.size() << endl;
    cerr << "Routes: " << routeNum << endl;
-//#endif
+#endif
 }
 
 /*
@@ -263,16 +248,24 @@ void FillRouteVector(std::vector<route> &routes,
          for(int toIndex = 0; toIndex < outgoingAirports.size(); ++toIndex) {
             int destCityIndex = airports[outgoingAirports[toIndex]].cityID;
             int toID = outgoingAirports[toIndex];
+            double dist = get_distance(airports[fromID].lat, airports[fromID].lon,
+                                       airports[toID].lat, airports[toID].lon);
             routes[rtIndex].from = cityIndex;
             routes[rtIndex].to = destCityIndex;
             routes[rtIndex].fromID = fromID;
             routes[rtIndex].toID = toID;
+            routes[rtIndex].distance = dist;
 
-            routes[rtIndex].distance = get_distance(airports[fromID].lat,
-                      airports[fromID].lon, airports[toID].lat, airports[toID].lon);
-
-            cityMap[cityIndex][destCityIndex] = routes[rtIndex].distance;
-            airMap[cityIndex][destCityIndex].push_back(rtIndex);
+            if(airMap[cityIndex][destCityIndex].size() > 0) {
+               //update if lower distance found
+               if(dist < cityMap[cityIndex][destCityIndex]) {
+                  airMap[cityIndex][destCityIndex][0] = rtIndex;
+                  cityMap[cityIndex][destCityIndex] = dist;
+               }
+            } else {
+               airMap[cityIndex][destCityIndex].push_back(rtIndex);
+               cityMap[cityIndex][destCityIndex] = dist;
+            }
             ++rtIndex;
          }
       }

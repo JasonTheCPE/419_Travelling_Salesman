@@ -51,7 +51,8 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
     }
 
     for (int k = 0; k < numCities; k++) {
-        cerr << "\rProgress: " << 100.0 *  k / numCities << "%  ";
+        cout << "Progress: " << 100.0 *  k / numCities << "%  \r";
+        fflush(stdout);
         for (int i = 0; i < numCities; i++) {
             //#pragma omp parallel for // need to send in routeMap and cityMap to xeonphi
             for (int j = 0; j < numCities; j++) {
@@ -71,8 +72,6 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
             }
         }
     }
-    cout << '\r';
-
 
 	ofstream Out_File("baddata.txt");
 	for (int i = 0; i < numCities; ++i) {
@@ -146,7 +145,6 @@ void printToCSV(const char* filename, std::vector<int> &path,
                 std::vector<std::string> &cityNames) {
     ofstream Out_File(filename);
 
-cerr << "CSV 1\n";
     // headings for file
     Out_File << "City,Airport Code,Trip Distance (km),Total Distance (km)" << endl;
 
@@ -156,23 +154,13 @@ cerr << "CSV 1\n";
              << airports[curRoute.fromID].alias << "," 
              << 0 << "," << 0 << endl;
 
-//for(int i = 0; i < routeList.size(); ++i) {
-//   cout << i << ": " << "RT: " << routeList[i].to << " PATH: " << path[i] << endl;
-//}
-
-//cerr << "CSV 2\n";
     // fill table
     double pathCost = 0;
     for (int i = 0; i < path.size(); ++i) {
-//cerr << "i " << i << endl;
         curRoute = routeList[path[i]];
-//cerr << "TO: " << curRoute.to << endl;
 
         // get the current total cost after flight
         pathCost += curRoute.distance;
-//cerr << "pathCost: " << pathCost << endl;
-//cerr << "cityName: " << cityNames[curRoute.to] << endl;
-//cerr << "alias: " << airports[curRoute.toID].alias << endl;
 
         Out_File << cityNames[curRoute.to] << "," 
                  << airports[curRoute.toID].alias << "," 
@@ -180,7 +168,6 @@ cerr << "CSV 1\n";
                  << pathCost << endl;   
     }
 
-//cerr << "CSV 3\n";
     // close the file
     Out_File.close();
 }
