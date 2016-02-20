@@ -207,6 +207,7 @@ void GetRouteInfo(const char* routeFilename,
                   } else {
                      // Add outgoing route information to each airport
                      airports[sourceID].outgoingIDs.push_back(destID);
+                     ++routeNum;
                   }
                   break;
                default:
@@ -216,12 +217,27 @@ void GetRouteInfo(const char* routeFilename,
          }
          prev = pos + 1;
       }
-      ++routeNum;
    }
-#ifdef DEBUG
-   cout << "Airports: " << airports.size() << endl;
-   cout << "Routes: " << routeNum << endl;
-#endif
+map<int, airport>::iterator it;
+int trueNum = 0;
+for(it = airports.begin(); it != airports.end(); it++) {
+   airport ap = it->second;
+   vector<int> outs =  ap.outgoingIDs;
+   trueNum += outs.size();
+   for(int j = 0; j < outs.size(); ++j) {
+      if(outs[j] == 0) {
+         cerr << "CITY: " << ap.cityName
+              << "CITYID: " << ap.cityID
+              << "ALIAS: " << ap.alias << endl;
+      }
+   }
+}
+   cerr << "TrueRoutes: " << trueNum << endl;
+routeNum = trueNum;
+//#ifdef DEBUG
+   cerr << "Airports: " << airports.size() << endl;
+   cerr << "Routes: " << routeNum << endl;
+//#endif
 }
 
 /*

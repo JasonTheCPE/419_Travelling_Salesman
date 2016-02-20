@@ -31,6 +31,11 @@ int main(int argc, const char *argv[]) {
    
    FillRouteVector(routes, airMap, cityMap, cities, cityNames, airports);
 
+   for(int i = 0; i < routes.size(); ++i) {
+      route r = routes[i];
+      cout << i << ": TO=" << r.to << "," << r.toID << " FROM=" << r.from << "," << r.fromID << endl;
+   }
+
 #ifdef DEBUG 
    for(int i = 0; i < cityMapSize; ++i) {
       cout << "City: " << cityNames[i] << endl;

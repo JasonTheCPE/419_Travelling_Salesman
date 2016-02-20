@@ -45,7 +45,7 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
             routeMap[i][j].push_back(j);
 
     for (int k = 0; k < numCities; k++) {
-        cout << "\rProgress: " << 100.0 *  k / numCities << "%  ";
+        cerr << "\rProgress: " << 100.0 *  k / numCities << "%  ";
         for (int i = 0; i < numCities; i++) {
             //#pragma omp parallel for // need to send in routeMap and cityMap to xeonphi
             for (int j = 0; j < numCities; j++) {
@@ -126,23 +126,23 @@ cerr << "CSV 1\n";
              << airports[curRoute.fromID].alias << "," 
              << 0 << "," << 0 << endl;
 
-for(int i = 0; i < routeList.size(); ++i) {
-   cout << i << ": " << "RT: " << routeList[i].to << " PATH: " << path[i] << endl;
-}
+//for(int i = 0; i < routeList.size(); ++i) {
+//   cout << i << ": " << "RT: " << routeList[i].to << " PATH: " << path[i] << endl;
+//}
 
-cerr << "CSV 2\n";
+//cerr << "CSV 2\n";
     // fill table
     double pathCost = 0;
     for (int i = 0; i < path.size(); ++i) {
-cerr << "i " << i << endl;
+//cerr << "i " << i << endl;
         curRoute = routeList[path[i]];
-cerr << "TO: " << curRoute.to << endl;
+//cerr << "TO: " << curRoute.to << endl;
 
         // get the current total cost after flight
         pathCost += curRoute.distance;
-cerr << "pathCost: " << pathCost << endl;
-cerr << "cityName: " << cityNames[curRoute.to] << endl;
-cerr << "alias: " << airports[curRoute.toID].alias << endl;
+//cerr << "pathCost: " << pathCost << endl;
+//cerr << "cityName: " << cityNames[curRoute.to] << endl;
+//cerr << "alias: " << airports[curRoute.toID].alias << endl;
 
         Out_File << cityNames[curRoute.to] << "," 
                  << airports[curRoute.toID].alias << "," 
@@ -150,7 +150,7 @@ cerr << "alias: " << airports[curRoute.toID].alias << endl;
                  << pathCost << endl;   
     }
 
-cerr << "CSV 3\n";
+//cerr << "CSV 3\n";
     // close the file
     Out_File.close();
 }
