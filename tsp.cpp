@@ -39,10 +39,16 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
                         std::vector< std::vector< std::vector<int> > > &routeMap) {
 
     //#pragma omp parallel for      // would need to send in routemap into xeonphi
-    for (int i = 0; i < numCities; ++i)
+    for (int i = 0; i < numCities; ++i) {
         //#pragma omp simd
-        for (int j = 0; j < numCities; ++j)
-            routeMap[i][j].push_back(j);
+        for (int j = 0; j < numCities; ++j) {
+            if (routeMap[i][j].size() > 1) {
+                cerr << "Error: route too long " << routeMap[i][j].size() << endl;
+            }
+            if (routeMap[i][j].size() == 1)
+                routeMap[i][j].push_back(j);
+        }
+    }
 
     for (int k = 0; k < numCities; k++) {
         cerr << "\rProgress: " << 100.0 *  k / numCities << "%  ";
@@ -66,6 +72,30 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
         }
     }
     cout << '\r';
+
+
+	ofstream Out_File("baddata.txt");
+	for (int i = 0; i < numCities; ++i) {
+		for (int j = 0; j < numCities; ++j) {
+			for (int k = 0; k < routeMap[i][j].size(); k += 2) {
+				bool printStuff = false;
+
+				if (routeMap[i][j][k] > 61498) {
+					Out_File << "route: " << routeMap[i][j][k] << " ";
+					printStuff = true;
+				}
+
+				if (routeMap[i][j][k+1] > numCities) {
+					Out_File << "city: " << routeMap[i][j][k + 1] << " ";
+					printStuff = true;
+				}
+
+				if (printStuff) {
+					Out_File << "at " << i << ", " << j << ", " << k << endl;
+				}
+			}
+		}
+	}
 }
 
 // very naive TSP
