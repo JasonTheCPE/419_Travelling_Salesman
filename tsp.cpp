@@ -24,13 +24,17 @@ void createFloydTable(int numCities, std::vector< std::vector<double> > &cityMap
     }
 
     for (int k = 0; k < numCities; k++) {
+#ifdef DEBUG
         cout << "Progress: " << 100.0 *  k / numCities << "%  \r";
         fflush(stdout);
+#endif
+        std::vector<double> &city_ks = cityMap[k];
+        std::vector< std::vector<int> > &routes_ks = routeMap[k];
+
+        #pragma omp parallel for
         for (int i = 0; i < numCities; i++) {
             double fromDist = cityMap[i][k];
-            std::vector<double> &city_ks = cityMap[k];
             std::vector<double> &city_is = cityMap[i];
-            std::vector< std::vector<int> > &routes_ks = routeMap[k];
             std::vector< std::vector<int> > &routes_is = routeMap[i];
             // i, k, fromDist, toDists, city_is, routes_ks, routes_is
             #pragma omp parallel for
