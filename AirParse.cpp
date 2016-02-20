@@ -1,9 +1,13 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>       /* sin */
 #include "AirParse.h"
 #include "airport.h"
 #include "tsp.h"
+
+#define PI 3.14159265
+#define Deg2Rad(a) (a * 3.14159265/180.0)
 
 using namespace std;
 
@@ -225,6 +229,24 @@ void GetRouteInfo(const char* routeFilename,
 #endif
 }
 
+double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b) {
+    double R = 6367.4447;    // radius of the earth according to wolfram alpha and Siri (who used wolfram)
+    double lat1 = Deg2Rad(lat1_a);
+    double lat2 = Deg2Rad(lat2_a);
+    double lon1 = Deg2Rad(lon1_b);
+    double lon2 = Deg2Rad(lon2_b);
+
+    double dlon = lon2 - lon1;
+    double dlat = lat2 - lat1;
+
+    double u = sin(dlat / 2);
+    double v = sin(dlon / 2);
+
+    double a = u*u + cos(lat1) * cos(lat2) * v*v;
+    double c = 2.0 * atan2(sqrt(a), sqrt(1 - a));
+    return R * c;
+}
+
 /*
  * Populates various vectors with information needed for the Floyd-Warshall
  * algorithm to run.
@@ -237,6 +259,7 @@ void FillRouteVector(std::vector<route> &routes,
                 std::map<int, airport> &airports) {
 
    int rtIndex = 0;
+
    for(int cityIndex = 0; cityIndex < cityNames.size(); ++cityIndex) {
       vector<int> cityAirports = cities[cityNames[cityIndex]].containedAirportIDs;
 
@@ -248,8 +271,15 @@ void FillRouteVector(std::vector<route> &routes,
          for(int toIndex = 0; toIndex < outgoingAirports.size(); ++toIndex) {
             int destCityIndex = airports[outgoingAirports[toIndex]].cityID;
             int toID = outgoingAirports[toIndex];
-            double dist = get_distance(airports[fromID].lat, airports[fromID].lon,
-                                       airports[toID].lat, airports[toID].lon);
+
+            double fromLat = airports[fromID].lat;
+            double fromLon = airports[fromID].lon;
+            double toLat = airports[toID].lat;
+            double toLon = airports[toID].lon;
+            double dist;
+
+            dist = get_distance(fromLat, fromLon, toLat, toLon);
+            
             routes[rtIndex].from = cityIndex;
             routes[rtIndex].to = destCityIndex;
             routes[rtIndex].fromID = fromID;

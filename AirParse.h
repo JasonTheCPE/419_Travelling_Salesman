@@ -43,4 +43,6 @@ void FillRouteVector(std::vector<route> &routes,
                 std::map<std::string, city> &cities,
                 std::vector<std::string> &cityNames,
                 std::map<int, airport> &airports);
+double get_distance(double lat1_a, double lat2_a, double lon1_b, double lon2_b);
+
 #endif
