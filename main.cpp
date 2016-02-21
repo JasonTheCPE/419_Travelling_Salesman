@@ -19,7 +19,9 @@ int main(int argc, const char *argv[]) {
       exit(EXIT_FAILURE);
    }
    
+#ifdef DEBUG
    cout << "Parsing Input files\n";
+#endif
    GetAllInfo(argv[1], argv[2], cities, cityNames, airports, routeNum);
 
    routes.resize(routeNum);
@@ -45,13 +47,19 @@ int main(int argc, const char *argv[]) {
    }
 #endif
 
+#ifdef DEBUG 
    cout << "Constructing Floyd Table\n";
+#endif
    createFloydTable(cities.size(), cityMap, airMap);
 
+#ifdef DEBUG 
    cout << "Creating Approximate Route\n";
+#endif
    vector<int> rts = createRoute(cityMapSize, airports[5768].cityID, cityMap, airMap);
 
+#ifdef DEBUG 
    cout << "Writing results.csv\n";
+#endif
    printToCSV("results.csv", rts, routes, airports, cityNames); 
 
    return 0;
