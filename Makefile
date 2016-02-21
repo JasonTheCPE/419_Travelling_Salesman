@@ -20,7 +20,7 @@ partsp: $(SRCFILES) main.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -o partsp $^
 
 clean:
-	rm -f *.o partsp result.csv *.optrpt *~ baddata.txt
+	rm -f *.o partsp result.csv *.optrpt *~
 
 testrun:
 	./partsp test_routes.dat test_airports.dat

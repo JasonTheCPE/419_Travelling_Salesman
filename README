@@ -7,6 +7,5 @@ Usage: partsp <routes.dat> <airports.dat>
 To build: run make. Options can be specified as in "make OPTION=1".
 
 Make options:
-   REPORT: Generates an optimization report for the binary partsp or the
-           specified testing binary if specified.
+   REPORT: Generates an optimization report for the binary partsp.
 
