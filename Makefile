@@ -4,7 +4,7 @@
 # Jason Swanson (jswans04@calpoly.edu)
 
 CC= icpc
-CFLAGS= -O3 -g #-debug inline-debug-info -openmp -xHost
+CFLAGS= -O3 -g -openmp -xHost
 LIBS=
 SRCFILES= AirParse.cpp tsp.cpp
 INCLUDES=
@@ -19,13 +19,11 @@ all: partsp
 partsp: $(SRCFILES) main.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -o partsp $^
 
-%.o: $.c $(PARSETESTSRCFILES)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<
-	
 clean:
 	rm -f *.o partsp result.csv *.optrpt *~ baddata.txt
 
 testrun:
 	./partsp test_routes.dat test_airports.dat
+
 run:
 	./partsp ../routes.dat ../airports.dat
